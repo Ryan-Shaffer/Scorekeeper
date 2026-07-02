@@ -1,11 +1,11 @@
 import Foundation
 
 struct GameState {
-    var players: [Player]
+    var teams: [Team]
     var currentRound: Int
 
-    init(players: [Player] = [], currentRound: Int = 1) {
-        self.players = players
+    init(teams: [Team] = [], currentRound: Int = 1) {
+        self.teams = teams
         self.currentRound = currentRound
     }
 
@@ -13,8 +13,17 @@ struct GameState {
         max(0, currentRound - 1)
     }
 
-    var leaderIDs: Set<UUID> {
-        guard let maxScore = players.map(\.totalScore).max() else { return [] }
-        return Set(players.filter { $0.totalScore == maxScore }.map(\.id))
+    var leadingTeamIDs: Set<UUID> {
+        guard let maxScore = teams.map(\.totalScore).max() else { return [] }
+        return Set(teams.filter { $0.totalScore == maxScore }.map(\.id))
+    }
+
+    func team(containingPlayerId playerId: UUID) -> (teamIndex: Int, playerIndex: Int)? {
+        for teamIndex in teams.indices {
+            if let playerIndex = teams[teamIndex].players.firstIndex(where: { $0.id == playerId }) {
+                return (teamIndex, playerIndex)
+            }
+        }
+        return nil
     }
 }
